@@ -142,7 +142,7 @@ func (u *EventsUseCase) BookEvent(ctx context.Context, eventId, userId uuid.UUID
 		// 3. check duplicate booking
 		exists, err := u.eventsRepo.TXExistsBooking(ctx, tx, eventId, userId)
 		if err != nil {
-			return err
+			return orgerror.Wrap(orgerror.CodeSystem, "failed to check duplicate booking", err)
 		}
 		if exists {
 			return orgerror.New(orgerror.CodeAlreadyBooked, "you have already booked this event")
