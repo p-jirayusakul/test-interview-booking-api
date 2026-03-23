@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/domain"
@@ -14,6 +15,64 @@ type eventsRepo struct {
 
 func NewEventsRepository(db *gorm.DB) domain.EventsRepository {
 	return &eventsRepo{db: db}
+}
+
+func (r *eventsRepo) CreateEvent(ctx context.Context, payload domain.CreateEvent) error {
+
+	err := gorm.G[eventRow](r.db).Exec(ctx, `
+		INSERT INTO public.events (name, max_seats, waitlist_limit, price, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?);
+		`, payload.Name, payload.MaxSeats, payload.WaitlistLimit, payload.Price, payload.StartTime, payload.EndTime)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *eventsRepo) SearchEvents(ctx context.Context, payload domain.EventFilter) ([]domain.Event, error) {
+
+	sortCol := whitelistSort(payload.Sort)
+	orderDir := whitelistOrder(payload.Order)
+
+	query := fmt.Sprintf(`
+		SELECT
+			id,
+			name,
+			max_seats,
+			waitlist_limit,
+			booked_count,
+			waitlist_count,
+			price,
+			start_time,
+			end_time,
+			created_at,
+			updated_at
+		FROM public.events
+		WHERE ($1 = '' OR name ILIKE '%%' || $1 || '%%')
+		ORDER BY %s %s
+		LIMIT $2 OFFSET $3
+	`, sortCol, orderDir)
+
+	result, err := gorm.G[eventRow](r.db).Raw(query, payload.Name, payload.Limit, payload.Offset).Find(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapEventRowsToDomain(result), nil
+}
+
+func (r *eventsRepo) CountEvents(ctx context.Context, search string) (int64, error) {
+
+	result, err := gorm.G[int64](r.db).Raw(`
+	SELECT COUNT(*)
+			FROM public.events
+			WHERE ($1 = '' OR name ILIKE '%' || $1 || '%')
+	`, search).First(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return result, nil
 }
 
 func (r *eventsRepo) GetEvenById(ctx context.Context, id uuid.UUID) (domain.Event, error) {

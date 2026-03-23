@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,6 +22,94 @@ type EventsUseCase struct {
 
 func NewEventsUseCase(eventsRepo domain.EventsRepository, booksRepo domain.BooksRepository, txManager domain.TransactionManager, timeLocation *time.Location) *EventsUseCase {
 	return &EventsUseCase{eventsRepo: eventsRepo, booksRepo: booksRepo, txManager: txManager, timeLocation: timeLocation}
+}
+
+func (u *EventsUseCase) CreateEvent(ctx context.Context, payload domain.CreateEvent) error {
+
+	if err := payload.Validate(); err != nil {
+		return err
+	}
+
+	err := u.eventsRepo.CreateEvent(ctx, payload)
+	if err != nil {
+		return orgerror.Wrap(orgerror.CodeSystem, "failed to create event", err)
+	}
+
+	return nil
+}
+
+func (u *EventsUseCase) GetEvent(ctx context.Context, id uuid.UUID) (domain.Event, error) {
+	result, err := u.eventsRepo.GetEvenById(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.Event{}, orgerror.New(orgerror.CodeEventNotFound, "event not found")
+		}
+		return domain.Event{}, orgerror.Wrap(orgerror.CodeSystem, "failed to get event", err)
+	}
+	return result, nil
+}
+
+func (u *EventsUseCase) SearchEvents(ctx context.Context, payload domain.EventFilter) (domain.EventFilterResult, error) {
+
+	if payload.Page < 1 {
+		payload.Page = 1
+	}
+
+	if payload.Limit < 1 {
+		payload.Limit = 10
+	}
+
+	if payload.Limit > 100 {
+		payload.Limit = 100
+	}
+
+	payload.Offset = (payload.Page - 1) * payload.Limit
+
+	var items []domain.Event
+	var total int64
+	var itemsErr, totalErr error
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		items, itemsErr = u.eventsRepo.SearchEvents(ctx, payload)
+	}()
+
+	go func() {
+		defer wg.Done()
+		total, totalErr = u.eventsRepo.CountEvents(ctx, payload.Name)
+	}()
+
+	wg.Wait()
+
+	if itemsErr != nil {
+		return domain.EventFilterResult{}, orgerror.Wrap(orgerror.CodeSystem, "failed to search event", itemsErr)
+	}
+
+	if totalErr != nil {
+		return domain.EventFilterResult{}, orgerror.Wrap(orgerror.CodeSystem, "failed to count events", totalErr)
+	}
+
+	hasNext := payload.Page*payload.Limit < int(total)
+	hasPrev := payload.Page > 1
+
+	if total == 0 {
+		hasNext = false
+		hasPrev = false
+	}
+
+	return domain.EventFilterResult{
+		Items: items,
+		Pagination: domain.EventFilterPagination{
+			Page:        payload.Page,
+			PageSize:    payload.Limit,
+			Total:       total,
+			HasNext:     hasNext,
+			HasPrevious: hasPrev,
+		},
+	}, nil
 }
 
 func (u *EventsUseCase) BookEvent(ctx context.Context, eventId, userId uuid.UUID) (string, error) {

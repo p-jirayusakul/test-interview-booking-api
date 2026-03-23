@@ -23,3 +23,16 @@ type Event struct {
 type BookEvent struct {
 	Status string `json:"status"`
 }
+
+type SearchEventsResponse struct {
+	Items      []Event                `json:"items"`
+	Pagination SearchEventsPagination `json:"pagination"`
+}
+
+type SearchEventsPagination struct {
+	Page        int   `json:"page"`
+	PageSize    int   `json:"pageSize"`
+	Total       int64 `json:"total"`
+	HasNext     bool  `json:"hasNext"`
+	HasPrevious bool  `json:"hasPrevious"`
+}

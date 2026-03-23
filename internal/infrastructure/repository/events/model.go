@@ -19,3 +19,27 @@ type eventRow struct {
 	CreatedAt     time.Time  `gorm:"column:created_at"`
 	UpdatedAt     *time.Time `gorm:"column:updated_at"`
 }
+
+func whitelistSort(input string) string {
+	switch input {
+	case "name":
+		return "name"
+	case "maxSeats":
+		return "max_seats"
+	case "price":
+		return "price"
+	case "startTime":
+		return "start_time"
+	case "endTime":
+		return "end_time"
+	default:
+		return "created_at"
+	}
+}
+
+func whitelistOrder(input string) string {
+	if input == "asc" {
+		return "ASC"
+	}
+	return "DESC"
+}
