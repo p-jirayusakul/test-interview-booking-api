@@ -13,7 +13,7 @@ import (
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/repository/postgres"
 )
 
-func TestConcurrentBooking(t *testing.T) {
+func TestEventsConcurrent(t *testing.T) {
 
 	ctx := context.Background()
 
