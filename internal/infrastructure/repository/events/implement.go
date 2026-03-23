@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/domain"
@@ -17,7 +18,7 @@ func NewEventsRepository(db *gorm.DB) domain.EventsRepository {
 	return &eventsRepo{db: db}
 }
 
-func (r *eventsRepo) CreateEvent(ctx context.Context, payload domain.CreateEvent) error {
+func (r *eventsRepo) CreateEvent(ctx context.Context, payload *domain.CreateEvent) error {
 
 	err := gorm.G[eventRow](r.db).Exec(ctx, `
 		INSERT INTO public.events (name, max_seats, waitlist_limit, price, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?);
@@ -29,10 +30,27 @@ func (r *eventsRepo) CreateEvent(ctx context.Context, payload domain.CreateEvent
 	return nil
 }
 
-func (r *eventsRepo) SearchEvents(ctx context.Context, payload domain.EventFilter) ([]domain.Event, error) {
-
+func (r *eventsRepo) SearchEvents(ctx context.Context, payload *domain.EventFilter) ([]*domain.Event, error) {
 	sortCol := whitelistSort(payload.Sort)
 	orderDir := whitelistOrder(payload.Order)
+
+	var (
+		conditions []string
+		args       []interface{}
+		argPos     = 1
+	)
+
+	if payload.Name != "" {
+		conditions = append(conditions, fmt.Sprintf("name ILIKE '%%' || $%d || '%%'", argPos))
+		args = append(args, payload.Name)
+		argPos++
+	}
+
+	whereClause := ""
+	if len(conditions) > 0 {
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
+	}
+	args = append(args, payload.Limit, payload.Offset)
 
 	query := fmt.Sprintf(`
 		SELECT
@@ -48,12 +66,15 @@ func (r *eventsRepo) SearchEvents(ctx context.Context, payload domain.EventFilte
 			created_at,
 			updated_at
 		FROM public.events
-		WHERE ($1 = '' OR name ILIKE '%%' || $1 || '%%')
+		%s
 		ORDER BY %s %s
-		LIMIT $2 OFFSET $3
-	`, sortCol, orderDir)
+		LIMIT $%d OFFSET $%d
+	`, whereClause, sortCol, orderDir, argPos, argPos+1)
 
-	result, err := gorm.G[eventRow](r.db).Raw(query, payload.Name, payload.Limit, payload.Offset).Find(ctx)
+	result, err := gorm.G[eventRow](r.db).
+		Raw(query, args...).
+		Find(ctx)
+
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +96,7 @@ func (r *eventsRepo) CountEvents(ctx context.Context, search string) (int64, err
 	return result, nil
 }
 
-func (r *eventsRepo) GetEvenById(ctx context.Context, id uuid.UUID) (domain.Event, error) {
+func (r *eventsRepo) GetEvenById(ctx context.Context, id uuid.UUID) (*domain.Event, error) {
 	result, err := gorm.G[eventRow](r.db).Raw(`
 		SELECT
 			id,
@@ -92,13 +113,13 @@ func (r *eventsRepo) GetEvenById(ctx context.Context, id uuid.UUID) (domain.Even
 		FROM public.events WHERE id = ?;
 		`, id).First(ctx)
 	if err != nil {
-		return domain.Event{}, err
+		return nil, err
 	}
 
 	return mapEventRowToDomain(result), nil
 }
 
-func (r *eventsRepo) TXGetEventForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (domain.Event, error) {
+func (r *eventsRepo) TXGetEventForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (*domain.Event, error) {
 	result, err := gorm.G[eventRow](tx).Raw(`
 		SELECT
 			id,
@@ -115,7 +136,7 @@ func (r *eventsRepo) TXGetEventForUpdate(ctx context.Context, tx *gorm.DB, id uu
 		FROM public.events WHERE id = ? FOR UPDATE;
 		`, id).First(ctx)
 	if err != nil {
-		return domain.Event{}, err
+		return nil, err
 	}
 
 	return mapEventRowToDomain(result), nil
@@ -136,7 +157,7 @@ func (r *eventsRepo) TXExistsBooking(ctx context.Context, tx *gorm.DB, eventId, 
 	return result, nil
 }
 
-func (r *eventsRepo) TXUpdateEvent(ctx context.Context, tx *gorm.DB, payload domain.Event) error {
+func (r *eventsRepo) TXUpdateEvent(ctx context.Context, tx *gorm.DB, payload *domain.Event) error {
 
 	err := gorm.G[eventRow](tx).Exec(ctx, `
 		UPDATE public.events

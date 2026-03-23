@@ -15,7 +15,9 @@ import (
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/repository/events"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/repository/postgres"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/usecase"
+	"github.com/p-jirayusakul/test-interview-booking-api/pkg/logs"
 	echoSwagger "github.com/swaggo/echo-swagger/v2"
+	"go.uber.org/zap"
 
 	_ "github.com/p-jirayusakul/test-interview-booking-api/docs"
 	"gorm.io/gorm"
@@ -42,6 +44,39 @@ func NewServer() (*http.Server, error) {
 	routes.Use(middleware.Recover())
 	routes.Use(middleware.RequestID())
 	routes.GET("/swagger/*", echoSwagger.WrapHandler)
+	routes.GET("/health/liveness", func(c *echo.Context) error {
+		return c.String(http.StatusOK, "OK")
+	})
+
+	logger, err := logs.InitLog(cfg.AppCfg.Env)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize logger: %w", err)
+	}
+
+	routes.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogURI:    true,
+		LogStatus: true,
+		Skipper: func(c *echo.Context) bool {
+			return logs.ShouldSkip(c.Request().URL.Path)
+		},
+		LogValuesFunc: func(c *echo.Context, v middleware.RequestLoggerValues) error {
+			requestId := c.Response().Header().Get(echo.HeaderXRequestID)
+			fields := []zap.Field{
+				zap.String("request_id", requestId),
+				zap.String("method", c.Request().Method),
+				zap.String("URI", v.URI),
+				zap.Int("status", v.Status),
+				zap.Duration("latency", v.Latency),
+			}
+			userIdStr := c.Request().Header.Get("X-User-Id")
+			if userIdStr != "" {
+				fields = append(fields, zap.String("user_id", userIdStr))
+			}
+
+			logger.Info("HTTP INBOUND REQUEST", fields...)
+			return nil
+		},
+	}))
 
 	routesGroup := routes.Group(cfg.AppCfg.BaseURL)
 

@@ -33,7 +33,7 @@ type EventFilter struct {
 }
 
 type EventFilterResult struct {
-	Items      []Event
+	Items      []*Event
 	Pagination EventFilterPagination
 }
 
@@ -76,11 +76,11 @@ func (c *CreateEvent) Validate() error {
 }
 
 type EventsRepository interface {
-	CreateEvent(ctx context.Context, payload CreateEvent) error
-	GetEvenById(ctx context.Context, id uuid.UUID) (Event, error)
-	TXGetEventForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (Event, error)
+	CreateEvent(ctx context.Context, payload *CreateEvent) error
+	GetEvenById(ctx context.Context, id uuid.UUID) (*Event, error)
+	TXGetEventForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (*Event, error)
 	TXExistsBooking(ctx context.Context, tx *gorm.DB, eventId, userId uuid.UUID) (bool, error)
-	TXUpdateEvent(ctx context.Context, tx *gorm.DB, payload Event) error
-	SearchEvents(ctx context.Context, payload EventFilter) ([]Event, error)
+	TXUpdateEvent(ctx context.Context, tx *gorm.DB, payload *Event) error
+	SearchEvents(ctx context.Context, payload *EventFilter) ([]*Event, error)
 	CountEvents(ctx context.Context, search string) (int64, error)
 }

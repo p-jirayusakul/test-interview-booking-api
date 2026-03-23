@@ -1,6 +1,6 @@
 app:
   port: "8080"
-  env: "localhost"
+  env: "LOCAL"
   host: "localhost"
   base_url: "/api/v1"
   version: "1.0.0"

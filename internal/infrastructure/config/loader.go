@@ -1,6 +1,8 @@
 package config
 
 import (
+	"errors"
+	"os"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -23,7 +25,12 @@ func NewLoader() *Loader {
 
 func (l *Loader) Load(path string) error {
 	l.v.SetConfigFile(path)
-	return l.v.ReadInConfig()
+	if err := l.v.ReadInConfig(); err != nil {
+		if _, ok := errors.AsType[*os.PathError](err); !ok {
+			return err
+		}
+	}
+	return nil
 }
 
 func (l *Loader) App() (AppConfig, error) {

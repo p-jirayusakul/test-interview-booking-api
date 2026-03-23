@@ -24,7 +24,7 @@ func NewEventsUseCase(eventsRepo domain.EventsRepository, booksRepo domain.Books
 	return &EventsUseCase{eventsRepo: eventsRepo, booksRepo: booksRepo, txManager: txManager, timeLocation: timeLocation}
 }
 
-func (u *EventsUseCase) CreateEvent(ctx context.Context, payload domain.CreateEvent) error {
+func (u *EventsUseCase) CreateEvent(ctx context.Context, payload *domain.CreateEvent) error {
 
 	if err := payload.Validate(); err != nil {
 		return err
@@ -38,18 +38,23 @@ func (u *EventsUseCase) CreateEvent(ctx context.Context, payload domain.CreateEv
 	return nil
 }
 
-func (u *EventsUseCase) GetEvent(ctx context.Context, id uuid.UUID) (domain.Event, error) {
+func (u *EventsUseCase) GetEvent(ctx context.Context, id uuid.UUID) (*domain.Event, error) {
+
+	if id == uuid.Nil {
+		return nil, orgerror.New(orgerror.CodeInvalidInput, "event id cannot be nil")
+	}
+
 	result, err := u.eventsRepo.GetEvenById(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return domain.Event{}, orgerror.New(orgerror.CodeEventNotFound, "event not found")
+			return nil, orgerror.New(orgerror.CodeEventNotFound, "event not found")
 		}
-		return domain.Event{}, orgerror.Wrap(orgerror.CodeSystem, "failed to get event", err)
+		return nil, orgerror.Wrap(orgerror.CodeSystem, "failed to get event", err)
 	}
 	return result, nil
 }
 
-func (u *EventsUseCase) SearchEvents(ctx context.Context, payload domain.EventFilter) (domain.EventFilterResult, error) {
+func (u *EventsUseCase) SearchEvents(ctx context.Context, payload *domain.EventFilter) (*domain.EventFilterResult, error) {
 
 	if payload.Page < 1 {
 		payload.Page = 1
@@ -65,7 +70,7 @@ func (u *EventsUseCase) SearchEvents(ctx context.Context, payload domain.EventFi
 
 	payload.Offset = (payload.Page - 1) * payload.Limit
 
-	var items []domain.Event
+	var items []*domain.Event
 	var total int64
 	var itemsErr, totalErr error
 
@@ -85,11 +90,11 @@ func (u *EventsUseCase) SearchEvents(ctx context.Context, payload domain.EventFi
 	wg.Wait()
 
 	if itemsErr != nil {
-		return domain.EventFilterResult{}, orgerror.Wrap(orgerror.CodeSystem, "failed to search event", itemsErr)
+		return nil, orgerror.Wrap(orgerror.CodeSystem, "failed to search event", itemsErr)
 	}
 
 	if totalErr != nil {
-		return domain.EventFilterResult{}, orgerror.Wrap(orgerror.CodeSystem, "failed to count events", totalErr)
+		return nil, orgerror.Wrap(orgerror.CodeSystem, "failed to count events", totalErr)
 	}
 
 	hasNext := payload.Page*payload.Limit < int(total)
@@ -100,7 +105,7 @@ func (u *EventsUseCase) SearchEvents(ctx context.Context, payload domain.EventFi
 		hasPrev = false
 	}
 
-	return domain.EventFilterResult{
+	return &domain.EventFilterResult{
 		Items: items,
 		Pagination: domain.EventFilterPagination{
 			Page:        payload.Page,

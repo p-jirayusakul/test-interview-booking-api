@@ -2,14 +2,14 @@ package events
 
 import "github.com/p-jirayusakul/test-interview-booking-api/internal/domain"
 
-func mapEventRowsToDomain(rows []eventRow) []domain.Event {
+func mapEventRowsToDomain(rows []eventRow) []*domain.Event {
 	if rows == nil {
 		return nil
 	}
 
-	events := make([]domain.Event, 0, len(rows))
+	events := make([]*domain.Event, 0, len(rows))
 	for _, row := range rows {
-		events = append(events, domain.Event{
+		events = append(events, &domain.Event{
 			ID:            row.ID,
 			Name:          row.Name,
 			MaxSeats:      row.MaxSeats,
@@ -27,9 +27,9 @@ func mapEventRowsToDomain(rows []eventRow) []domain.Event {
 	return events
 }
 
-func mapEventRowToDomain(row eventRow) domain.Event {
+func mapEventRowToDomain(row eventRow) *domain.Event {
 
-	return domain.Event{
+	return &domain.Event{
 		ID:            row.ID,
 		Name:          row.Name,
 		MaxSeats:      row.MaxSeats,

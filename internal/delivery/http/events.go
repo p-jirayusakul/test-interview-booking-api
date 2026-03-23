@@ -51,7 +51,7 @@ func (h *EventsHandler) CreateEvent(c *echo.Context) error {
 		EndTime:       createEvent.EndTime,
 	}
 
-	err = h.useCase.CreateEvent(c.Request().Context(), payload)
+	err = h.useCase.CreateEvent(c.Request().Context(), &payload)
 	if err != nil {
 		return c.JSON(orgerror.HTTPStatus(err), orgresponse.ErrorResponse(err, requestId))
 	}
@@ -77,13 +77,7 @@ func (h *EventsHandler) CreateEvent(c *echo.Context) error {
 func (h *EventsHandler) GetEvent(c *echo.Context) error {
 	requestId := c.Response().Header().Get(echo.HeaderXRequestID)
 
-	eventIdStr, err := echo.PathParam[string](c, "id")
-	if err != nil {
-		err = orgerror.New(orgerror.CodeInvalidInput, err.Error())
-		return c.JSON(orgerror.HTTPStatus(err), orgresponse.ErrorResponse(err, requestId))
-	}
-
-	eventId, err := uuid.Parse(eventIdStr)
+	eventId, err := convertStringToUUID(c, "id")
 	if err != nil {
 		err = orgerror.New(orgerror.CodeInvalidInput, err.Error())
 		return c.JSON(orgerror.HTTPStatus(err), orgresponse.ErrorResponse(err, requestId))
@@ -134,7 +128,7 @@ func (h *EventsHandler) SearchEvents(c *echo.Context) error {
 		Order: searchEventRequest.OrderBy,
 	}
 
-	result, err := h.useCase.SearchEvents(c.Request().Context(), payload)
+	result, err := h.useCase.SearchEvents(c.Request().Context(), &payload)
 	if err != nil {
 		return c.JSON(orgerror.HTTPStatus(err), orgresponse.ErrorResponse(err, requestId))
 	}
@@ -174,13 +168,7 @@ func (h *EventsHandler) BookEvent(c *echo.Context) error {
 		return c.JSON(orgerror.HTTPStatus(err), orgresponse.ErrorResponse(err, requestId))
 	}
 
-	eventIdStr, err := echo.PathParam[string](c, "id")
-	if err != nil {
-		err = orgerror.New(orgerror.CodeInvalidInput, err.Error())
-		return c.JSON(orgerror.HTTPStatus(err), orgresponse.ErrorResponse(err, requestId))
-	}
-
-	eventId, err := uuid.Parse(eventIdStr)
+	eventId, err := convertStringToUUID(c, "id")
 	if err != nil {
 		err = orgerror.New(orgerror.CodeInvalidInput, err.Error())
 		return c.JSON(orgerror.HTTPStatus(err), orgresponse.ErrorResponse(err, requestId))
@@ -198,7 +186,7 @@ func (h *EventsHandler) BookEvent(c *echo.Context) error {
 	})
 }
 
-func mapSearchEventResponse(payload domain.EventFilterResult) response.SearchEventsResponse {
+func mapSearchEventResponse(payload *domain.EventFilterResult) response.SearchEventsResponse {
 	return response.SearchEventsResponse{
 		Items: mapSearchEventResponseItems(payload.Items),
 		Pagination: response.SearchEventsPagination{
@@ -211,7 +199,7 @@ func mapSearchEventResponse(payload domain.EventFilterResult) response.SearchEve
 	}
 }
 
-func mapSearchEventResponseItems(rows []domain.Event) []response.Event {
+func mapSearchEventResponseItems(rows []*domain.Event) []response.Event {
 	if rows == nil {
 		return nil
 	}
@@ -236,7 +224,7 @@ func mapSearchEventResponseItems(rows []domain.Event) []response.Event {
 	return events
 }
 
-func mapEventResponse(row domain.Event) response.Event {
+func mapEventResponse(row *domain.Event) response.Event {
 	return response.Event{
 		ID:            row.ID,
 		Name:          row.Name,
