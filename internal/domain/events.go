@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Event struct {
@@ -22,5 +23,8 @@ type Event struct {
 }
 
 type EventsRepository interface {
-	ListEvent(ctx context.Context) ([]Event, error)
+	GetEvenById(ctx context.Context, id uuid.UUID) (Event, error)
+	TXGetEventForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (Event, error)
+	TXExistsBooking(ctx context.Context, tx *gorm.DB, eventId, userId uuid.UUID) (bool, error)
+	TXUpdateEvent(ctx context.Context, tx *gorm.DB, payload Event) error
 }

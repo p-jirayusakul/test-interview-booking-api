@@ -5,6 +5,7 @@ app:
   base_url: "/api/v1"
   version: "1.0.0"
   name: "test-interview-booking-api"
+  tz: "Asia/Bangkok"
 
 db:
   host: "localhost"

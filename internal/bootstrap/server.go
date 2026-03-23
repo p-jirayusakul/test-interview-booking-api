@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 	orghttp "github.com/p-jirayusakul/test-interview-booking-api/internal/delivery/http"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/config"
+	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/repository/books"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/repository/events"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/repository/postgres"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/usecase"
@@ -35,9 +37,15 @@ func NewServer() (*http.Server, error) {
 
 	routes := echo.New()
 	routes.Use(middleware.Recover())
+	routes.Use(middleware.RequestID())
 	routesGroup := routes.Group(cfg.AppCfg.BaseURL)
 
-	initEventsHandler(routesGroup, dbConn)
+	loc, err := time.LoadLocation(cfg.AppCfg.TZ)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load timezone: %w", err)
+	}
+
+	initEventsHandler(routesGroup, dbConn, loc)
 
 	// Declare Server config
 	server := &http.Server{
@@ -48,12 +56,15 @@ func NewServer() (*http.Server, error) {
 		WriteTimeout: 30 * time.Second,
 	}
 
+	log.Println("Server started on port: ", cfg.AppCfg.Port)
 	return server, nil
 }
 
-func initEventsHandler(routesGroup *echo.Group, dbConn *gorm.DB) {
+func initEventsHandler(routesGroup *echo.Group, dbConn *gorm.DB, timeLocation *time.Location) {
 	eventsRepo := events.NewEventsRepository(dbConn)
-	eventsUseCase := usecase.NewEventsUseCase(eventsRepo)
+	booksRepo := books.NewBooksRepository(dbConn)
+	txManager := postgres.NewTransactionManager(dbConn)
+	eventsUseCase := usecase.NewEventsUseCase(eventsRepo, booksRepo, txManager, timeLocation)
 	eventsHandler := orghttp.NewEventsHandler(eventsUseCase)
 	orghttp.BindEventsRoutes(routesGroup, eventsHandler)
 }

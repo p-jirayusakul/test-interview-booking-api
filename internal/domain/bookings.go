@@ -1,9 +1,11 @@
 package domain
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type BookingStatus string
@@ -19,5 +21,9 @@ type Booking struct {
 	UserID    uuid.UUID
 	Status    BookingStatus
 	CreatedAt time.Time
-	UpdatedAt time.Time
+	UpdatedAt *time.Time
+}
+
+type BooksRepository interface {
+	TXCreateBooking(ctx context.Context, tx *gorm.DB, payload Booking) error
 }

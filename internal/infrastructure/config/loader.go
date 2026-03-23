@@ -34,6 +34,11 @@ func (l *Loader) App() (AppConfig, error) {
 		BaseURL: l.v.GetString("app.base_url"),
 		Version: l.v.GetString("app.version"),
 		Name:    l.v.GetString("app.name"),
+		TZ:      l.v.GetString("app.tz"),
+	}
+
+	if cfg.TZ == "" {
+		cfg.TZ = "Asia/Bangkok"
 	}
 
 	err := cfg.Validate()

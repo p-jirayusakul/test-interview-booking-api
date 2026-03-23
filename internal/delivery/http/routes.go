@@ -6,5 +6,5 @@ import (
 
 func BindEventsRoutes(routesGroup *echo.Group, handler *EventsHandler) {
 	eventsRouter := routesGroup.Group("/events")
-	eventsRouter.GET("", handler.ListEvent)
+	eventsRouter.POST("/:id/book", handler.BookEvent)
 }

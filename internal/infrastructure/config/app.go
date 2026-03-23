@@ -9,6 +9,7 @@ type AppConfig struct {
 	BaseURL string `mapstructure:"base_url"`
 	Version string `mapstructure:"version"`
 	Name    string `mapstructure:"name"`
+	TZ      string `mapstructure:"tz"`
 }
 
 func (s AppConfig) Validate() error {
