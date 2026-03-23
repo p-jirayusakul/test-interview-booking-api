@@ -1,0 +1,25 @@
+services:
+  events_booking_db:
+    container_name: database_events_booking
+    image: postgres:18.3
+    restart: always
+    environment:
+      POSTGRES_DB: events_booking_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      PGDATA: /var/lib/postgresql/18/main
+    ports:
+      - "5432:5432"
+    volumes:
+      - psql_volume:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - events_booking
+volumes:
+  psql_volume:
+networks:
+  events_booking:

@@ -1,0 +1,14 @@
+app:
+  port: "8080"
+  env: "localhost"
+  host: "localhost"
+  base_url: "/api/v1"
+  version: "1.0.0"
+  name: "test-interview-booking-api"
+
+db:
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "1234"
+  dbname: "events_booking_db"
