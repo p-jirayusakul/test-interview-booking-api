@@ -1,0 +1,294 @@
+definitions:
+  github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_request.CreateEvent:
+    properties:
+      endTime:
+        example: "2026-03-01T12:00:00+07:00"
+        type: string
+      maxSeats:
+        example: 100
+        type: integer
+      name:
+        example: Go Workshop 101
+        type: string
+      price:
+        example: 100000
+        type: number
+      startTime:
+        example: "2026-03-01T09:00:00+07:00"
+        type: string
+      waitlistLimit:
+        example: 10
+        type: integer
+    type: object
+  github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.BookEvent:
+    properties:
+      status:
+        example: CONFIRMED
+        type: string
+    type: object
+  github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.Event:
+    properties:
+      bookedCount:
+        example: 100
+        type: integer
+      createdAt:
+        example: "2026-03-01T09:00:00+07:00"
+        type: string
+      endTime:
+        example: "2026-03-01T12:00:00+07:00"
+        type: string
+      id:
+        example: 019d19e7-1626-7070-87aa-3879915fa117
+        type: string
+      maxSeats:
+        example: 100
+        type: integer
+      name:
+        example: Go Workshop 101
+        type: string
+      price:
+        example: 100000
+        type: number
+      startTime:
+        example: "2026-03-01T09:00:00+07:00"
+        type: string
+      updatedAt:
+        example: "2026-03-01T12:00:00+07:00"
+        type: string
+      waitlistCount:
+        example: 100
+        type: integer
+      waitlistLimit:
+        example: 10
+        type: integer
+    type: object
+  github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.SearchEventsPagination:
+    properties:
+      hasNext:
+        example: true
+        type: boolean
+      hasPrevious:
+        example: false
+        type: boolean
+      page:
+        example: 1
+        type: integer
+      pageSize:
+        example: 10
+        type: integer
+      total:
+        example: 10
+        type: integer
+    type: object
+  github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.SearchEventsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.Event'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.SearchEventsPagination'
+    type: object
+  github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock'
+      requestId:
+        type: string
+      success:
+        type: boolean
+    type: object
+  ? github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_BookEvent
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.BookEvent'
+      error:
+        $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock'
+      requestId:
+        type: string
+      success:
+        type: boolean
+    type: object
+  ? github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_Event
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.Event'
+      error:
+        $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock'
+      requestId:
+        type: string
+      success:
+        type: boolean
+    type: object
+  ? github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_SearchEventsResponse
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.SearchEventsResponse'
+      error:
+        $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock'
+      requestId:
+        type: string
+      success:
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/events:
+    post:
+      consumes:
+      - application/json
+      description: Create a new event with the provided details
+      parameters:
+      - description: Event details
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_request.CreateEvent'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+      summary: Create a new event
+      tags:
+      - events
+  /api/v1/events/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve event details by event ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_Event'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+      summary: Get event by ID
+      tags:
+      - events
+  /api/v1/events/{id}/book:
+    post:
+      consumes:
+      - application/json
+      description: Book a seat for an event or join the waitlist
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: header
+        name: X-User-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_BookEvent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+      summary: Book an event
+      tags:
+      - events
+  /api/v1/events/search:
+    get:
+      consumes:
+      - application/json
+      description: Search and filter events with pagination and sorting
+      parameters:
+      - description: Search by event name
+        in: query
+        name: search
+        type: string
+      - description: Page number
+        in: query
+        name: pageNumber
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      - description: Sort by field
+        in: query
+        name: sortBy
+        type: string
+      - description: Order direction (asc/desc)
+        in: query
+        name: orderBy
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_SearchEventsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any'
+      summary: Search events
+      tags:
+      - events
+swagger: "2.0"

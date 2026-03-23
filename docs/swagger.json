@@ -1,0 +1,439 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/api/v1/events": {
+            "post": {
+                "description": "Create a new event with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "description": "Event details",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_request.CreateEvent"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/search": {
+            "get": {
+                "description": "Search and filter events with pagination and sorting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Search events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by event name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "pageNumber",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order direction (asc/desc)",
+                        "name": "orderBy",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_SearchEventsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{id}": {
+            "get": {
+                "description": "Retrieve event details by event ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get event by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/events/{id}/book": {
+            "post": {
+                "description": "Book a seat for an event or join the waitlist",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Book an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-Id",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_BookEvent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_request.CreateEvent": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "string",
+                    "example": "2026-03-01T12:00:00+07:00"
+                },
+                "maxSeats": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Go Workshop 101"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 100000
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "2026-03-01T09:00:00+07:00"
+                },
+                "waitlistLimit": {
+                    "type": "integer",
+                    "example": 10
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.BookEvent": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "CONFIRMED"
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.Event": {
+            "type": "object",
+            "properties": {
+                "bookedCount": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2026-03-01T09:00:00+07:00"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "2026-03-01T12:00:00+07:00"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "019d19e7-1626-7070-87aa-3879915fa117"
+                },
+                "maxSeats": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Go Workshop 101"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 100000
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "2026-03-01T09:00:00+07:00"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2026-03-01T12:00:00+07:00"
+                },
+                "waitlistCount": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "waitlistLimit": {
+                    "type": "integer",
+                    "example": 10
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.SearchEventsPagination": {
+            "type": "object",
+            "properties": {
+                "hasNext": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "hasPrevious": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "pageSize": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 10
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.SearchEventsResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.Event"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.SearchEventsPagination"
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-any": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock"
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_BookEvent": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.BookEvent"
+                },
+                "error": {
+                    "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock"
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_Event": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.Event"
+                },
+                "error": {
+                    "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock"
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_p-jirayusakul_test-interview-booking-api_pkg_response.Response-github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response_SearchEventsResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_internal_delivery_http_response.SearchEventsResponse"
+                },
+                "error": {
+                    "$ref": "#/definitions/github_com_p-jirayusakul_test-interview-booking-api_pkg_response.ErrorBlock"
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

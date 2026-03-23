@@ -21,6 +21,17 @@ func NewEventsHandler(useCase *usecase.EventsUseCase) *EventsHandler {
 	return &EventsHandler{useCase: useCase}
 }
 
+// CreateEvent godoc
+// @Summary Create a new event
+// @Description Create a new event with the provided details
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param event body request.CreateEvent true "Event details"
+// @Success 201 {object} orgresponse.Response[any]
+// @Failure 400 {object} orgresponse.Response[any]
+// @Failure 500 {object} orgresponse.Response[any]
+// @Router /api/v1/events [post]
 func (h *EventsHandler) CreateEvent(c *echo.Context) error {
 	requestId := c.Response().Header().Get(echo.HeaderXRequestID)
 
@@ -51,6 +62,18 @@ func (h *EventsHandler) CreateEvent(c *echo.Context) error {
 	})
 }
 
+// GetEvent godoc
+// @Summary Get event by ID
+// @Description Retrieve event details by event ID
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID"
+// @Success 200 {object} orgresponse.Response[response.Event]
+// @Failure 400 {object} orgresponse.Response[any]
+// @Failure 404 {object} orgresponse.Response[any]
+// @Failure 500 {object} orgresponse.Response[any]
+// @Router /api/v1/events/{id} [get]
 func (h *EventsHandler) GetEvent(c *echo.Context) error {
 	requestId := c.Response().Header().Get(echo.HeaderXRequestID)
 
@@ -78,6 +101,21 @@ func (h *EventsHandler) GetEvent(c *echo.Context) error {
 	})
 }
 
+// SearchEvents godoc
+// @Summary Search events
+// @Description Search and filter events with pagination and sorting
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param search query string false "Search by event name"
+// @Param pageNumber query int false "Page number"
+// @Param pageSize query int false "Page size"
+// @Param sortBy query string false "Sort by field"
+// @Param orderBy query string false "Order direction (asc/desc)"
+// @Success 200 {object} orgresponse.Response[response.SearchEventsResponse]
+// @Failure 400 {object} orgresponse.Response[any]
+// @Failure 500 {object} orgresponse.Response[any]
+// @Router /api/v1/events/search [get]
 func (h *EventsHandler) SearchEvents(c *echo.Context) error {
 	requestId := c.Response().Header().Get(echo.HeaderXRequestID)
 
@@ -108,6 +146,20 @@ func (h *EventsHandler) SearchEvents(c *echo.Context) error {
 	})
 }
 
+// BookEvent godoc
+// @Summary Book an event
+// @Description Book a seat for an event or join the waitlist
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID"
+// @Param X-User-Id header string true "User ID"
+// @Success 201 {object} orgresponse.Response[response.BookEvent]
+// @Failure 400 {object} orgresponse.Response[any]
+// @Failure 401 {object} orgresponse.Response[any]
+// @Failure 404 {object} orgresponse.Response[any]
+// @Failure 500 {object} orgresponse.Response[any]
+// @Router /api/v1/events/{id}/book [post]
 func (h *EventsHandler) BookEvent(c *echo.Context) error {
 	requestId := c.Response().Header().Get(echo.HeaderXRequestID)
 	userIdStr := c.Request().Header.Get("X-User-Id")

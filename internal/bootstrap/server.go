@@ -15,6 +15,9 @@ import (
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/repository/events"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/infrastructure/repository/postgres"
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/usecase"
+	echoSwagger "github.com/swaggo/echo-swagger/v2"
+
+	_ "github.com/p-jirayusakul/test-interview-booking-api/docs"
 	"gorm.io/gorm"
 )
 
@@ -38,6 +41,8 @@ func NewServer() (*http.Server, error) {
 	routes := echo.New()
 	routes.Use(middleware.Recover())
 	routes.Use(middleware.RequestID())
+	routes.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	routesGroup := routes.Group(cfg.AppCfg.BaseURL)
 
 	loc, err := time.LoadLocation(cfg.AppCfg.TZ)

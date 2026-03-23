@@ -7,21 +7,21 @@ import (
 )
 
 type Event struct {
-	ID            uuid.UUID  `json:"id"`
-	Name          string     `json:"name"`
-	MaxSeats      int        `json:"maxSeats"`
-	WaitlistLimit int        `json:"waitlistLimit"`
-	BookedCount   int        `json:"bookedCount"`
-	WaitlistCount int        `json:"waitlistCount"`
-	Price         float64    `json:"price"`
-	StartTime     time.Time  `json:"startTime"`
-	EndTime       time.Time  `json:"endTime"`
-	CreatedAt     time.Time  `json:"createdAt"`
-	UpdatedAt     *time.Time `json:"updatedAt"`
+	ID            uuid.UUID  `json:"id" example:"019d19e7-1626-7070-87aa-3879915fa117"`
+	Name          string     `json:"name" example:"Go Workshop 101"`
+	MaxSeats      int        `json:"maxSeats" example:"100"`
+	WaitlistLimit int        `json:"waitlistLimit" example:"10"`
+	BookedCount   int        `json:"bookedCount" example:"100"`
+	WaitlistCount int        `json:"waitlistCount" example:"100"`
+	Price         float64    `json:"price" example:"100000.00"`
+	StartTime     time.Time  `json:"startTime" example:"2026-03-01T09:00:00+07:00"`
+	EndTime       time.Time  `json:"endTime" example:"2026-03-01T12:00:00+07:00"`
+	CreatedAt     time.Time  `json:"createdAt" example:"2026-03-01T09:00:00+07:00"`
+	UpdatedAt     *time.Time `json:"updatedAt" example:"2026-03-01T12:00:00+07:00"`
 }
 
 type BookEvent struct {
-	Status string `json:"status"`
+	Status string `json:"status" example:"CONFIRMED"`
 }
 
 type SearchEventsResponse struct {
@@ -30,9 +30,9 @@ type SearchEventsResponse struct {
 }
 
 type SearchEventsPagination struct {
-	Page        int   `json:"page"`
-	PageSize    int   `json:"pageSize"`
-	Total       int64 `json:"total"`
-	HasNext     bool  `json:"hasNext"`
-	HasPrevious bool  `json:"hasPrevious"`
+	Page        int   `json:"page" example:"1"`
+	PageSize    int   `json:"pageSize" example:"10"`
+	Total       int64 `json:"total" example:"10"`
+	HasNext     bool  `json:"hasNext" example:"true"`
+	HasPrevious bool  `json:"hasPrevious" example:"false"`
 }
