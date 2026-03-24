@@ -56,6 +56,7 @@ func (u *EventsUseCase) GetEvent(ctx context.Context, id uuid.UUID) (*domain.Eve
 
 func (u *EventsUseCase) SearchEvents(ctx context.Context, payload *domain.EventFilter) (*domain.EventFilterResult, error) {
 
+	// set default pagination
 	if payload.Page < 1 {
 		payload.Page = 1
 	}

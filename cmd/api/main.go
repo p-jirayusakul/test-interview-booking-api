@@ -12,7 +12,7 @@ import (
 	"github.com/p-jirayusakul/test-interview-booking-api/internal/bootstrap"
 )
 
-func gracefulShutdown(apiServer *http.Server, done chan bool) {
+func gracefulShutdown(apiServer *bootstrap.Server, done chan bool) {
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -27,7 +27,13 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 	// the request it is currently handling
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := apiServer.Shutdown(ctx); err != nil {
+
+	// close database connection
+	log.Println("Shutting down database connection")
+	sqlDB, _ := apiServer.DB.DB()
+	_ = sqlDB.Close()
+
+	if err := apiServer.HttpServer.Shutdown(ctx); err != nil {
 		log.Printf("Server forced to shutdown with error: %v", err)
 	}
 
@@ -50,7 +56,7 @@ func main() {
 	// Run graceful shutdown in a separate goroutine
 	go gracefulShutdown(server, done)
 
-	err = server.ListenAndServe()
+	err = server.HttpServer.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		panic(fmt.Sprintf("http server error: %s", err))
 	}

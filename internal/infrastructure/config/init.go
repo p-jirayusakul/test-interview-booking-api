@@ -6,27 +6,27 @@ type Config struct {
 	Loader      *Loader
 }
 
-func InitConfig() (Config, error) {
+func InitConfig() (*Config, error) {
 	loader := NewLoader()
 	if err := loader.Load("config/config.yaml"); err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
 	appCfg, err := loader.App()
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
 	err = appCfg.Validate()
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
 	databaseCfg, err := loader.Database()
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
-	return Config{
+	return &Config{
 		AppCfg:      appCfg,
 		DatabaseCfg: databaseCfg,
 		Loader:      loader,
