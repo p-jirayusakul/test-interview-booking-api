@@ -37,14 +37,15 @@ http://localhost:8080/api/v1
 
 ## API Documentation
 
+Wiki:
+- [Home](https://github.com/p-jirayusakul/test-interview-booking-api/wiki)
+- [Search Event](https://github.com/p-jirayusakul/test-interview-booking-api/wiki/API-Spec:-Search-Event)
+- [จอง Event](https://github.com/p-jirayusakul/test-interview-booking-api/wiki/API-Spec:-%E0%B8%88%E0%B8%AD%E0%B8%87-Event)
+
+
 Swagger UI:
 ```text
 http://localhost:8080/swagger/index.html
-```
-
-### Generate Swagger Document
-```bash
-swag init --parseDependency --parseInternal -g cmd/api/main.go -o docs
 ```
 
 ## Testing
